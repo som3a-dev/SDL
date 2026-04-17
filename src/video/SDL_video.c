@@ -1427,6 +1427,23 @@ bool SDL_GetClosestFullscreenDisplayMode(SDL_DisplayID displayID, int w, int h, 
                  * refresh rate target */
                 continue;
             }
+
+            int closest_bpp = SDL_BITSPERPIXEL(closest->format);
+            int current_bpp = SDL_BITSPERPIXEL(mode->format);
+
+            if (closest_bpp > current_bpp) {
+                // The mode we already found has better color depth
+                continue;
+
+            } else if (closest_bpp == current_bpp) {
+                bool closest_is_indexed = SDL_ISPIXELFORMAT_INDEXED(closest->format);
+                bool current_is_indexed = SDL_ISPIXELFORMAT_INDEXED(mode->format);
+
+                if (current_is_indexed && (!closest_is_indexed)) {
+                    // The mode we already found is non indexed, prefer it over the current indexed mode
+                    continue;
+                }
+            }
         }
 
         closest = mode;
